@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-fn solve_part1(list1: &Vec<i32>, list2: &Vec<i32>) -> i32 {
+fn solve_part1(list1: &[i32], list2: &[i32]) -> i32 {
     list1
         .iter()
         .zip(list2.iter())
@@ -8,7 +8,7 @@ fn solve_part1(list1: &Vec<i32>, list2: &Vec<i32>) -> i32 {
         .sum()
 }
 
-fn solve_part2(list1: &Vec<i32>, list2: &Vec<i32>) -> i32 {
+fn solve_part2(list1: &[i32], list2: &[i32]) -> i32 {
     let mut frequency_list: HashMap<i32, i32> = HashMap::new();
     for &x in list2.iter() {
         *frequency_list.entry(x).or_insert(0) += 1;

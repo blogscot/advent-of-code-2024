@@ -46,7 +46,6 @@ fn main() {
         reports.push(report);
     }
 
-    println!("{:?}", solve_part1(&reports));
-
-    println!("{:?}", solve_part2(&reports));
+    println!("Part 1: {:?}", solve_part1(&reports));
+    println!("Part 2: {:?}", solve_part2(&reports));
 }
