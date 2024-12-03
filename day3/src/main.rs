@@ -1,17 +1,12 @@
 use regex::Regex;
 
 fn solve_part1(memory: &str) -> u64 {
-    let re = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
-    let re2 = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
-    let matches = re.find_iter(memory).map(|m| m.as_str()).collect::<Vec<&str>>();
-
     let mut sum = 0;
-    for m in matches {
-        re2.captures(m).map(|c| c.extract()).into_iter().for_each(|(_, [first, second])| {
-            let first = first.parse::<u64>().unwrap();
-            let second = second.parse::<u64>().unwrap();
-            sum += first * second;
-        });
+    let re = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
+    for (_, [first, second]) in re.captures_iter(memory).map(|c| c.extract()) {
+        let first = first.parse::<u64>().unwrap();
+        let second = second.parse::<u64>().unwrap();
+        sum += first * second;
     }
     sum
 }
@@ -29,14 +24,13 @@ fn solve_part2(memory: &str) -> u64 {
             "don't()" => state = State::Off,
             _ => {
                 if state == State::On {
-                re2.captures(m)
-                    .map(|c| c.extract())
-                    .into_iter()
-                    .for_each(|(_, [first, second])| {
-                        let first = first.parse::<u64>().unwrap();
-                        let second = second.parse::<u64>().unwrap();
-                        sum += first * second;
-                    })
+                    re2.captures(m).map(|c| c.extract()).into_iter().for_each(
+                        |(_, [first, second])| {
+                            let first = first.parse::<u64>().unwrap();
+                            let second = second.parse::<u64>().unwrap();
+                            sum += first * second;
+                        },
+                    )
                 }
             }
         }
