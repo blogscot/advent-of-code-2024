@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 struct Point {
     x: usize,
     y: usize,
@@ -41,15 +41,12 @@ impl Puzzle {
         let mut x = x as i32;
         let mut y = y as i32;
         for letter in XMAS.iter() {
-            if !self.is_valid((x, y)) {
-                return false;
-            }
-            if self.letters[y as usize][x as usize] != *letter {
+            if !self.is_valid((x, y)) || self.letters[y as usize][x as usize] != *letter {
                 return false;
             }
             let (dx, dy) = (direction.0, direction.1);
-            y = y as i32 + dy;
-            x = x as i32 + dx;
+            y += dy;
+            x += dx;
         }
         true
     }
@@ -67,11 +64,8 @@ impl Puzzle {
             if !self.is_valid(before) || !self.is_valid(after) {
                 return false;
             }
-            if (self.at(before) == 'M' && self.at(after) == 'S')
-                || (self.at(before) == 'S' && self.at(after) == 'M')
-            {
-                return true;
-            }
+            return (self.at(before) == 'M' && self.at(after) == 'S')
+                || (self.at(before) == 'S' && self.at(after) == 'M');
         }
         false
     }
@@ -103,15 +97,15 @@ fn solve_part2(puzzle: &Puzzle) -> usize {
     let mut points: HashMap<Point, u32> = HashMap::new();
     for row in 0..puzzle.height {
         for col in 0..puzzle.width {
-            for direction in [UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT] {
+            for direction in [UP_LEFT, UP_RIGHT] {
                 if puzzle.find_mas(&Point { x: col, y: row }, &direction) {
                     let point = Point { x: col, y: row };
-                    points.entry(point).and_modify(|c| *c += 1).or_insert(1);
+                    *points.entry(point).or_insert(0) += 1;
                 }
             }
         }
     }
-    points.iter().filter(|(_, value)| **value == 4).count()
+    points.iter().filter(|(_, value)| **value == 2).count()
 }
 
 fn main() {
