@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[derive(Debug, Eq, PartialEq, Hash)]
 struct Point {
     x: usize,
@@ -79,33 +77,26 @@ impl Puzzle {
     }
 }
 
-fn solve_part1(puzzle: &Puzzle) -> u32 {
-    let mut count = 0;
-    for row in 0..puzzle.height {
-        for col in 0..puzzle.width {
-            for direction in DIRECTIONS {
-                if puzzle.find_xmas(&Point { x: col, y: row }, &direction) {
-                    count += 1;
-                }
-            }
-        }
-    }
-    count
+fn solve_part1(puzzle: &Puzzle) -> usize {
+    (0..puzzle.height)
+    .flat_map(|row| (0..puzzle.width)
+    .flat_map(move |col| {
+        let point = Point { x: col, y: row };
+        DIRECTIONS.iter().filter(move |direction| {
+            puzzle.find_xmas(&point, &direction)
+        })
+    })).count()
 }
 
 fn solve_part2(puzzle: &Puzzle) -> usize {
-    let mut points: HashMap<Point, u32> = HashMap::new();
-    for row in 0..puzzle.height {
-        for col in 0..puzzle.width {
-            for direction in [UP_LEFT, UP_RIGHT] {
-                if puzzle.find_mas(&Point { x: col, y: row }, &direction) {
-                    let point = Point { x: col, y: row };
-                    *points.entry(point).or_insert(0) += 1;
-                }
-            }
-        }
-    }
-    points.iter().filter(|(_, value)| **value == 2).count()
+    (0..puzzle.height)
+    .flat_map(|row| (0..puzzle.width)
+    .filter(move |col| {
+        let point = Point { x: *col, y: row };
+        [UP_LEFT, UP_RIGHT].iter().all(move |direction| {
+            puzzle.find_mas(&point, direction)
+        })
+    })).count()
 }
 
 fn main() {
