@@ -7,7 +7,7 @@ impl Rule {
         Rule(a.parse().unwrap(), b.parse().unwrap())
     }
 
-    // If a rule page order does not match the update the rule is invalid.
+    // If the update does not match the rule page order the update is invalid.
     fn check(&self, update: &[u32]) -> bool {
         let index1 = update.iter().position(|&x| x == self.0);
         let index2 = update.iter().position(|&x| x == self.1);
