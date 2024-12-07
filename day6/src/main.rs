@@ -101,7 +101,6 @@ struct Grid2 {
     direction: Direction,
     width: usize,
     height: usize,
-    visited: HashSet<Position>,
     new_obstacle: Option<Position>,
     collisions: HashMap<Position, HashSet<Direction>>,
     cycle_detected: bool,
@@ -115,8 +114,6 @@ impl Grid2 {
             .flat_map(|row| (0..width).map(move |col| (row, col)))
             .find(|(row, col)| grid[*row][*col] == '^')
             .unwrap();
-        let mut visited = HashSet::new();
-        visited.insert(Position::new(guard.0, guard.1));
         Self {
             grid,
             initial_position: Position::new(guard.0, guard.1),
@@ -124,7 +121,6 @@ impl Grid2 {
             direction: UP,
             width,
             height,
-            visited,
             new_obstacle: None,
             collisions: HashMap::new(),
             cycle_detected: false,
@@ -165,21 +161,21 @@ impl Grid2 {
         }
     }
 
-    fn detect_cycle(&mut self, position: &Position) {
-        match self.collisions.get(position) {
+    fn detect_cycle(&mut self, position: Position) {
+        match self.collisions.get(&position) {
             Some(directions) => {
                 if directions.contains(&self.direction) {
                     self.cycle_detected = true;
                 } else {
                     self.collisions
-                        .get_mut(position)
+                        .get_mut(&position)
                         .unwrap()
                         .insert(self.direction);
                 }
             }
             None => {
                 let directions = HashSet::from([self.direction]);
-                self.collisions.insert(position.clone(), directions);
+                self.collisions.insert(position, directions);
             }
         }
     }
@@ -191,13 +187,11 @@ impl Grid2 {
         let new_col = col as isize + dcol;
         let position = Position::new(new_row as usize, new_col as usize);
         if self.grid[new_row as usize][new_col as usize] == OBSTACLE {
-            self.detect_cycle(&position);
+            self.detect_cycle(position);
             self.turn();
             self.step();
         } else {
-            let position = Position::new(new_row as usize, new_col as usize);
-            self.position = position.clone();
-            self.visited.insert(position);
+            self.position = position;
         }
     }
 }
