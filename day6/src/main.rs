@@ -1,4 +1,7 @@
-use std::{collections::{HashMap, HashSet}, hash::Hash};
+use std::{
+    collections::{HashMap, HashSet},
+    hash::Hash,
+};
 
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
 struct Position {
@@ -163,12 +166,15 @@ impl Grid2 {
     }
 
     fn detect_cycle(&mut self, position: &Position) {
-        match self.collisions.get(&position) {
+        match self.collisions.get(position) {
             Some(directions) => {
                 if directions.contains(&self.direction) {
                     self.cycle_detected = true;
                 } else {
-                    self.collisions.get_mut(&position).unwrap().insert(self.direction);
+                    self.collisions
+                        .get_mut(position)
+                        .unwrap()
+                        .insert(self.direction);
                 }
             }
             None => {
@@ -197,14 +203,13 @@ impl Grid2 {
 }
 
 fn solve_part2(grid: Vec<Vec<char>>, visited: &HashSet<Position>) -> usize {
-
     let mut grid = Grid2::new(grid);
     let mut count = 0;
 
     visited.iter().for_each(|position| {
         grid.reset();
-        grid.set_new_obstacle(&position);
-        while !grid.found_exit() && !grid.cycle_detected  {
+        grid.set_new_obstacle(position);
+        while !grid.found_exit() && !grid.cycle_detected {
             grid.step();
         }
         if grid.cycle_detected {
