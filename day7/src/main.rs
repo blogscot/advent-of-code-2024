@@ -20,8 +20,7 @@ fn calculate(nums: &mut [u64], acc: &mut Vec<u64>, operators: &[&str]) {
     }
 }
 
-fn solve_part1(equations: &mut [(u64, Vec<u64>)]) -> u64 {
-    let operators = vec!["+", "*"];
+fn solve(equations: &mut [(u64, Vec<u64>)], operators: &[&str]) -> u64 {
     equations.iter_mut().map(|(total, nums)| {
         let mut acc = vec![];
         calculate(nums, &mut acc, &operators);
@@ -34,18 +33,14 @@ fn solve_part1(equations: &mut [(u64, Vec<u64>)]) -> u64 {
     .sum::<u64>()
 }
 
+fn solve_part1(equations: &mut [(u64, Vec<u64>)]) -> u64 {
+    let operators = vec!["+", "*"];
+    solve(equations, &operators)
+}
+
 fn solve_part2(equations: &mut [(u64, Vec<u64>)]) -> u64 {
-    let operators: [&str; 3] = ["+", "*", "||"];
-    equations.iter_mut().map(|(total, nums)| {
-        let mut acc = vec![];
-        calculate(nums, &mut acc, &operators);
-        if acc.contains(total) {
-            *total
-        }  else {
-            0
-        }
-    })
-    .sum::<u64>()
+    let operators = vec!["+", "*", "||"];
+    solve(equations, &operators)
 }
 
 fn main() {
