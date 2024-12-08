@@ -74,21 +74,18 @@ impl City {
                 let p1 = points[i];
                 let p2 = points[j];
                 let diff = p1 - p2;
-                let mut p = p1 + diff;
+                let mut p = p1;
                 while self.is_valid(&p) {
                     antenodes.push(p);
                     p = p + diff;
                 }
-                p = p2 - diff;
+                p = p2;
                 while self.is_valid(&p) {
                     antenodes.push(p);
                     p = p - diff;
                 }
             }
         }
-        antennas.iter().filter(|(_, points)| points.len() > 1).for_each(|(_, points)| {
-            antenodes.append(&mut points.clone());
-        });
         antenodes
     }
 }
