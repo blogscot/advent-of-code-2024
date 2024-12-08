@@ -27,15 +27,11 @@ impl City {
             && point.col < self.width as i32
     }
 
-    fn at(&self, row: u32, col: u32) -> char {
-        self.grid[row as usize][col as usize]
-    }
-
     fn find_antennas(&self) -> HashMap<char, Vec<Point>> {
         let mut antennas: HashMap<char, Vec<Point>> = HashMap::new();
         for row in 0..self.height {
             for col in 0..self.width {
-                let c = self.at(row, col);
+                let c =  self.grid[row as usize][col as usize];
                 if c != '.' {
                     antennas
                         .entry(c)
