@@ -31,7 +31,7 @@ impl City {
         let mut antennas: HashMap<char, Vec<Point>> = HashMap::new();
         for row in 0..self.height {
             for col in 0..self.width {
-                let c =  self.grid[row as usize][col as usize];
+                let c = self.grid[row as usize][col as usize];
                 if c != '.' {
                     antennas
                         .entry(c)
@@ -95,7 +95,8 @@ fn solve_part1(city: &City) -> usize {
     antennas
         .keys()
         .flat_map(|key| city.calculate_antenode_positions(&antennas, *key))
-        .collect::<HashSet<Point>>().len()
+        .collect::<HashSet<Point>>()
+        .len()
 }
 
 fn solve_part2(city: &City) -> usize {
@@ -103,7 +104,8 @@ fn solve_part2(city: &City) -> usize {
     antennas
         .keys()
         .flat_map(|key| city.calculate_antenode_positions_with_harmonics(&antennas, *key))
-        .collect::<HashSet<Point>>().len()
+        .collect::<HashSet<Point>>()
+        .len()
 }
 
 fn main() {
