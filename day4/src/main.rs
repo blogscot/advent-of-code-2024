@@ -4,20 +4,22 @@ struct Point {
     y: usize,
 }
 
-struct Direction(i32, i32);
+type Direction = (i32, i32);
 
-const UP: Direction = Direction(0, -1);
-const DOWN: Direction = Direction(0, 1);
-const LEFT: Direction = Direction(-1, 0);
-const RIGHT: Direction = Direction(1, 0);
-const UP_LEFT: Direction = Direction(-1, -1);
-const UP_RIGHT: Direction = Direction(1, -1);
-const DOWN_LEFT: Direction = Direction(-1, 1);
-const DOWN_RIGHT: Direction = Direction(1, 1);
+const UP: Direction = (0, -1);
+const DOWN: Direction = (0, 1);
+const LEFT: Direction = (-1, 0);
+const RIGHT: Direction = (1, 0);
+const UP_LEFT: Direction = (-1, -1);
+const UP_RIGHT: Direction = (1, -1);
+const DOWN_LEFT: Direction = (-1, 1);
+const DOWN_RIGHT: Direction = (1, 1);
 
 const DIRECTIONS: [Direction; 8] = [
     UP, DOWN, LEFT, RIGHT, UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT,
 ];
+
+const XMAS: &[char; 4] = &['X', 'M', 'A', 'S'];
 
 struct Puzzle {
     letters: Vec<Vec<char>>,
@@ -34,7 +36,6 @@ impl Puzzle {
         }
     }
     fn find_xmas(&self, start: &Point, direction: &Direction) -> bool {
-        const XMAS: &[char; 4] = &['X', 'M', 'A', 'S'];
         let Point { x, y } = *start;
         let mut x = x as i32;
         let mut y = y as i32;
@@ -70,33 +71,34 @@ impl Puzzle {
 
     fn is_valid(&self, point: (i32, i32)) -> bool {
         let (x, y) = point;
-        if x < 0 || y < 0 || x >= self.width as i32 || y >= self.height as i32 {
-            return false;
-        }
-        true
+        x >= 0 && y >= 0 && x < self.width as i32 && y < self.height as i32
     }
 }
 
 fn solve_part1(puzzle: &Puzzle) -> usize {
     (0..puzzle.height)
-    .flat_map(|row| (0..puzzle.width)
-    .flat_map(move |col| {
-        let point = Point { x: col, y: row };
-        DIRECTIONS.iter().filter(move |direction| {
-            puzzle.find_xmas(&point, &direction)
+        .flat_map(|row| {
+            (0..puzzle.width).flat_map(move |col| {
+                let point = Point { x: col, y: row };
+                DIRECTIONS
+                    .iter()
+                    .filter(move |direction| puzzle.find_xmas(&point, direction))
+            })
         })
-    })).count()
+        .count()
 }
 
 fn solve_part2(puzzle: &Puzzle) -> usize {
     (0..puzzle.height)
-    .flat_map(|row| (0..puzzle.width)
-    .filter(move |col| {
-        let point = Point { x: *col, y: row };
-        [UP_LEFT, UP_RIGHT].iter().all(move |direction| {
-            puzzle.find_mas(&point, direction)
+        .flat_map(|row| {
+            (0..puzzle.width).filter(move |col| {
+                let point = Point { x: *col, y: row };
+                [UP_LEFT, UP_RIGHT]
+                    .iter()
+                    .all(move |direction| puzzle.find_mas(&point, direction))
+            })
         })
-    })).count()
+        .count()
 }
 
 fn main() {
