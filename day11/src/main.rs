@@ -5,7 +5,7 @@ const INPUT: &str = "0 89741 316108 7641 756 9 7832357 91";
 
 type Stone = u64;
 
-fn blink(num: u64) -> Vec<Stone> {
+fn blink(num: Stone) -> Vec<Stone> {
     if num == 0 {
         return vec![1];
     }
@@ -25,11 +25,10 @@ fn solve(stones: &Vec<Stone>, num_blinks: u32) -> u64 {
         *counter.entry(*stone).or_insert(0) += 1;
     });
 
-    // Calculate the next generation
     // Store the unique values with their counts in a hashmap
     // Calculate the next generation:
-    // Each new stone carries over the count from the previous generation due to duplicate entries.
-    // Similarly this new generation contains duplicate stones: their counts are added together.
+    // Each new stone carries over the count from the previous generation.
+    // Also, this new generation contains duplicate stones: their counts are added together.
 
     for _ in 0..num_blinks {
         let generation: Vec<(Stone, u64)> = counter
