@@ -264,12 +264,10 @@ fn convert_square<'a>(ch: char) -> &'a str {
 
 fn convert(grid: Vec<Vec<char>>) -> Vec<Vec<char>> {
     let mut converted = Vec::new();
-    let width = grid[0].len();
-    let height = grid.len();
-    for row in 0..height {
+    for row in grid {
         let mut new_row = Vec::new();
-        for col in 0..width {
-            let doubled = convert_square(grid[row][col]);
+        for ch in row {
+            let doubled = convert_square(ch);
             new_row.extend(doubled.chars());
         }
         converted.push(new_row);
