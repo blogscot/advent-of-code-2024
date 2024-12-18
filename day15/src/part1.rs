@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 mod point;
 
 use point::Point;
@@ -117,7 +115,6 @@ impl WareHouse {
         None
     }
     fn move_robot(&mut self, direction: &Direction) {
-        let robot_point = self.robot;
         let delta = match direction {
             Direction::Up((x, y)) => Move::new(*x, *y),
             Direction::Down((x, y)) => Move::new(*x, *y),
@@ -149,7 +146,7 @@ impl WareHouse {
         for row in 0..self.height {
             for col in 0..self.width {
                 let point = Point::new(col as i32, row as i32);
-                if self.grid[row as usize][col as usize] == BOX {
+                if self.at(point) == Some(BOX) {
                     sum += row * 100 + col;
                 }
             }
@@ -162,13 +159,12 @@ impl WareHouse {
 fn main() {
     let (grid, directions) = include_str!("puzzle.txt").split_once("\n\n").unwrap();
     let directions = directions.replace("\n", "");
-    // println!("{:?}", directions);
 
     let grid: Vec<Vec<char>> = grid.lines().map(|line| line.chars().collect()).collect();
     let mut warehose = WareHouse::new(grid);
     let instructions: Vec<Direction> = directions.chars().map(parse_direction).collect();
 
-    warehose.display();
+    // warehose.display();
     instructions.iter().for_each(|direction| {
         warehose.move_robot(direction);
     });
