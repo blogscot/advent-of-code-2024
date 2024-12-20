@@ -87,10 +87,9 @@ impl Maze {
             if last == self.end {
                 return cost as usize;
             }
-            if visited.contains(&last) {
+            if !visited.insert(last) {
                 continue;
             }
-            visited.insert(last);
             for (&new_direction, neighbor) in self.get_directions(last) {
                 let mut new_path = current_path.clone();
                 if let Some(rotations) = ROTATIONS.get(&current_direction) {
@@ -123,7 +122,6 @@ impl Maze {
                 }
             }
             state.insert(entry, cost);
-
 
             if last == self.end && cost == max_cost {
                 for point in &path {

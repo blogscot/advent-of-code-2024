@@ -1,4 +1,4 @@
-use std::{fmt::Debug, ops::{Add, Sub}};
+use std::{fmt::Debug, ops::{Add, AddAssign, Sub, SubAssign}};
 
 #[derive(Default, Clone, Copy, Eq, Hash, PartialEq)]
 pub struct Point {
@@ -12,9 +12,9 @@ impl std::fmt::Display for Point {
     }
 }
 
-impl From<(i32, i32)> for Point {
-    fn from(value: (i32, i32)) -> Self {
-        Point { x: value.0, y: value.1 }
+impl<T: Into<i32>> From<(T, T)> for Point {
+    fn from((x, y): (T, T)) -> Self {
+        Point { x: x.into(), y: y.into() }
     }
 }
 
@@ -35,6 +35,13 @@ impl Add for Point {
     }
 }
 
+impl AddAssign for Point {
+    fn add_assign(&mut self, other: Point) {
+        self.x += other.x;
+        self.y += other.y;
+    }
+}
+
 impl Sub for Point {
     type Output = Point;
 
@@ -43,6 +50,13 @@ impl Sub for Point {
             x: self.x - other.x,
             y: self.y - other.y,
         }
+    }
+}
+
+impl SubAssign for Point {
+    fn sub_assign(&mut self, other: Point) {
+        self.x -= other.x;
+        self.y -= other.y;
     }
 }
 
