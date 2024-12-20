@@ -1,15 +1,9 @@
 use std::{fmt::Debug, ops::{Add, Sub}};
 
-#[derive(Clone, Copy, Eq, Hash, PartialEq)]
+#[derive(Default, Clone, Copy, Eq, Hash, PartialEq)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
-}
-
-impl Default for Point {
-    fn default() -> Self {
-        Point { x: 0, y: 0 }
-    }
 }
 
 impl std::fmt::Display for Point {

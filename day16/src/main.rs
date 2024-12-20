@@ -3,7 +3,7 @@ mod point;
 use phf::phf_map;
 
 use priority_queue::DoublePriorityQueue;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use point::Point;
 
@@ -68,21 +68,17 @@ impl Maze {
     fn at(&self, point: &Point) -> char {
         self.maze[point.y as usize][point.x as usize]
     }
-    fn set(&mut self, point: &Point, ch: char) {
-        self.maze[point.y as usize][point.x as usize] = ch;
+    fn is_valid(&self, point: &Point) -> bool {
+        self.at(point) != WALL
     }
-    fn get_directions(&self, current: Point) -> Vec<(char, Point)> {
+    fn get_directions(&self, current: Point) -> Vec<(&char, Point)> {
         DIRECTIONS
-            .keys()
-            .map(|&direction| {
-                let (x, y) = DIRECTIONS.get(&direction).unwrap();
-                (direction, current + Point::new(*x, *y))
-            })
+            .entries()
+            .map(|(direction, &point)| (direction, current + point.into()))
             .filter(|(_, point)| self.at(point) != WALL)
             .collect()
     }
     fn navigate(&self) -> usize {
-        let mut paths = vec![];
         let mut queue: DoublePriorityQueue<(char, Vec<Point>), i32> = DoublePriorityQueue::new();
         let mut visited: HashSet<Point> = HashSet::new();
         queue.push(('E', vec![self.start]), 0);
@@ -96,33 +92,74 @@ impl Maze {
                 continue;
             }
             visited.insert(*last);
-            if *last == self.end {
-                paths.push(current_path);
-                continue;
-            }
             for (direction, neighbor) in self.get_directions(*last) {
                 let mut new_path = current_path.clone();
                 if let Some(rotations) = ROTATIONS.get(&current_direction) {
                     new_path.push(neighbor);
-                    if rotations.contains(&direction) {
-                        queue.push((direction, new_path.clone()), cost + 1001);
+                    if rotations.contains(direction) {
+                        queue.push((*direction, new_path), cost + 1001);
                     } else {
-                        queue.push((direction, new_path), cost + 1);
+                        queue.push((*direction, new_path), cost + 1);
                     }
                 }
             }
         }
         0
     }
-    fn display(&self) {
-        for row in self.maze.iter() {
-            for ch in row.iter() {
-                print!("{}", ch);
+
+    fn count_tiles(&self, max_cost: i32) -> usize {
+        let mut tiles: HashSet<Point> = HashSet::new();
+        let mut queue: DoublePriorityQueue<(char, Point, Vec<Point>), i32> = DoublePriorityQueue::new();
+        let mut state: HashMap<(char, Point), i32> = HashMap::new();
+        queue.push(('E', self.start, vec![self.start]), 0);
+        while !queue.is_empty() {
+            let ((direction, last, path), cost) = queue.pop_min().unwrap();
+            if cost > max_cost {
+                continue;
             }
-            println!();
+            let entry = (direction, last);
+            match state.get(&entry) {
+                Some(&old_cost) => {
+                    if cost > old_cost {
+                        continue;
+                    }
+                }
+                None => {
+                    state.insert(entry, cost);
+                }
+            }
+
+            if last == self.end && cost == max_cost {
+                for point in &path {
+                    tiles.insert(*point);
+                }
+                continue;
+            }
+
+            let delta = *DIRECTIONS.get(&direction).unwrap();
+            let new_point = last + delta.into();
+            if self.is_valid(&new_point) {
+                let mut new_path = path.clone();
+                new_path.push(new_point);
+                let new_cost = cost + 1;
+                if new_cost <= max_cost {
+                    queue.push((direction, new_point, new_path), new_cost);
+                }
+            }
+
+            for new_direction in *ROTATIONS.get(&direction).unwrap() {
+                let new_cost = cost + 1000;
+                if new_cost <= max_cost {
+                    queue.push((new_direction, last, path.clone()), new_cost);
+                }
+            }
         }
-        println!();
+        tiles.len()
     }
+}
+
+fn solve_part_1(maze: &Maze) -> usize {
+    maze.navigate()
 }
 
 fn main() {
@@ -130,8 +167,9 @@ fn main() {
         .lines()
         .map(|line| line.chars().collect())
         .collect();
-    let maze = Maze::new(input);
-    let costs = maze.navigate();
 
-    println!("{:?}", costs);
+    let maze = Maze::new(input);
+    let cost = solve_part_1(&maze);
+    println!("Part 1: {:?}", cost);
+    println!("Part 2: {:?}", maze.count_tiles(cost as i32));
 }
