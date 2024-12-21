@@ -124,14 +124,13 @@ impl Device {
             Opcode::Cdv => self.cdv(operand),
         }
     }
-    fn display(&self) {
-        let output = self
+    fn display(&self) -> String {
+        self
             .screen
             .iter()
             .map(|x| x.to_string())
             .collect::<Vec<String>>()
-            .join(",");
-        println!("{}", output);
+            .join(",")
     }
     fn dump_registers(&self) {
         println!("[a: {} b: {} c: {}]", self.a, self.b, self.c);
@@ -145,19 +144,19 @@ fn parse(txt: &str, regex: &Regex) -> Vec<isize> {
         .collect()
 }
 
-fn solve_part1(registers: &[isize], memory: &[isize]) {
+fn solve_part1(registers: &[isize], memory: &[isize]) -> String {
     let mut device = Device::boot(registers.try_into().unwrap(), memory.to_owned());
     device.run();
     device.dump_registers();
-    device.display();
+    device.display()
 }
 
 fn main() {
     let (reg_info, mem_info) = include_str!("puzzle.txt").split_once("\n\n").unwrap();
     let re = Regex::new(r"(\d+)").unwrap();
-
     let registers: Vec<isize> = parse(reg_info, &re);
     let memory: Vec<isize> = parse(mem_info, &re);
 
-    solve_part1(&registers, &memory)
+    let program = solve_part1(&registers, &memory);
+    println!("Part 1: {}", program);
 }
