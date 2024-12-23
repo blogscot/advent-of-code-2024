@@ -41,7 +41,7 @@ impl Debug for Instruction {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Device {
     pc: usize,
     a: isize,
@@ -64,7 +64,7 @@ impl Device {
     }
     fn get_combo_operand(&self, operand: isize) -> isize {
         match operand {
-            0 | 1 | 2 | 3 | 7 => operand,
+            0 | 1 | 2 | 3 => operand,
             4 => self.a,
             5 => self.b,
             6 => self.c,
@@ -72,8 +72,7 @@ impl Device {
         }
     }
     fn dv(&mut self, operand: isize) -> isize {
-        let combo = self.get_combo_operand(operand) as u32;
-        self.a / 2isize.pow(combo)
+        self.a >> self.get_combo_operand(operand)
     }
     fn adv(&mut self, operand: isize) {
         self.a = self.dv(operand);
@@ -82,13 +81,13 @@ impl Device {
         self.b ^= operand
     }
     fn bst(&mut self, operand: isize) {
-        self.b = self.get_combo_operand(operand) % 8
+        self.b = self.get_combo_operand(operand) & 0b111
     }
     fn bxc(&mut self, _ioperand: isize) {
         self.b ^= self.c
     }
     fn out(&mut self, operand: isize) {
-        let result = self.get_combo_operand(operand) % 8;
+        let result = self.get_combo_operand(operand) & 0b111;
         self.screen.push(result);
     }
     fn bdv(&mut self, operand: isize) {
@@ -125,14 +124,13 @@ impl Device {
         }
     }
     fn display(&self) -> String {
-        self
-            .screen
+        self.screen
             .iter()
             .map(|x| x.to_string())
             .collect::<Vec<String>>()
             .join(",")
     }
-    fn dump_registers(&self) {
+    fn _dump_registers(&self) {
         println!("[a: {} b: {} c: {}]", self.a, self.b, self.c);
     }
 }
@@ -144,11 +142,34 @@ fn parse(txt: &str, regex: &Regex) -> Vec<isize> {
         .collect()
 }
 
-fn solve_part1(registers: &[isize], memory: &[isize]) -> String {
-    let mut device = Device::boot(registers.try_into().unwrap(), memory.to_owned());
+fn solve_part1(registers: [isize; 3], memory: &[isize]) -> String {
+    let mut device = Device::boot(registers, memory.to_owned());
     device.run();
-    device.dump_registers();
+    // device._dump_registers();
     device.display()
+}
+
+fn solve_part2(registers: [isize; 3], memory: &[isize]) -> isize {
+    fn recur(device: &mut Device, a: isize, index: usize) -> Option<isize> {
+        for lower_3_bits in 0..=7 {
+            let mut computer = device.clone();
+            let candidate = (a << 3) | lower_3_bits;
+            computer.a = candidate;
+            computer.run();
+
+            if computer.screen[0] == computer.memory[index] {
+                if index == 0 {
+                    return Some(candidate);
+                }
+                if let Some(result) = recur(device, candidate, index - 1) {
+                    return Some(result);
+                }
+            }
+        }
+        None
+    }
+    let mut device = Device::boot(registers, memory.to_owned());
+    recur(&mut device, 0, memory.len() - 1).unwrap()
 }
 
 fn main() {
@@ -157,6 +178,7 @@ fn main() {
     let registers: Vec<isize> = parse(reg_info, &re);
     let memory: Vec<isize> = parse(mem_info, &re);
 
-    let program = solve_part1(&registers, &memory);
-    println!("Part 1: {}", program);
+    let registers: [isize; 3] = registers.try_into().unwrap();
+    println!("Part 1: {}", solve_part1(registers, &memory));
+    println!("Part 2: {}", solve_part2(registers, &memory));
 }
