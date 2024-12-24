@@ -57,14 +57,13 @@ impl Memory {
             .filter(|point| self.is_valid(*point))
             .collect()
     }
-    fn search(&mut self) {
+    fn search(&mut self) -> Option<u32> {
         let mut queue = PriorityQueue::new();
         queue.push((0, self.start), Reverse(0));
         self.set(self.start, Tile::Floor(Some(0)));
         while let Some(((steps, point), _)) = queue.pop() {
             if point == self.end {
-                println!("Found: {} steps", steps);
-                return;
+                return Some(steps);
             }
             self.neighbours(point).iter().for_each(|neighbour| {
                 if let Some(Tile::Floor(value)) = self.get(*neighbour) {
@@ -75,11 +74,12 @@ impl Memory {
                 }
             })
         }
+        None
     }
-    fn drop_bytes(&mut self, bytes: Vec<Point>) {
-        bytes.iter().for_each(|point| self.set(*point, Tile::Wall));
+    fn drop_bytes(&mut self, bytes: &Vec<&Point>) {
+        bytes.iter().for_each(|point| self.set(**point, Tile::Wall));
     }
-    fn dump(&self) {
+    fn _dump(&self) {
         self.layout.iter().for_each(|row| {
             for tile in row {
                 print!("{}", tile);
@@ -101,8 +101,20 @@ fn main() {
     });
 
     let mut memory = Memory::new(width as usize, height as usize);
-    let amount = 1024;
-    memory.drop_bytes(data.into_iter().take(amount).collect());
-    memory.search();
-    memory.dump();
+    let mut amount = 1024;
+    let bytes = data.iter().take(amount).collect();
+    memory.drop_bytes(&bytes);
+    println!("Part 1: {}", memory.search().unwrap());
+
+    loop {
+        amount += 1;
+        let mut memory = Memory::new(width as usize, height as usize);
+        let bytes = data.iter().take(amount).collect();
+        memory.drop_bytes(&bytes);
+        if memory.search().is_none() {
+            println!("Part 2: {} ", bytes.last().unwrap());
+            break;
+        };
+    }
+
 }
