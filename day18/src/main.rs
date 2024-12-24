@@ -59,9 +59,9 @@ impl Memory {
     }
     fn search(&mut self) -> Option<u32> {
         let mut queue = PriorityQueue::new();
-        queue.push((0, self.start), Reverse(0));
+        queue.push(self.start, Reverse(0));
         self.set(self.start, Tile::Floor(Some(0)));
-        while let Some(((steps, point), _)) = queue.pop() {
+        while let Some((point, Reverse(steps))) = queue.pop() {
             if point == self.end {
                 return Some(steps);
             }
@@ -69,7 +69,7 @@ impl Memory {
                 if let Some(Tile::Floor(value)) = self.get(*neighbour) {
                     if value.is_none() || value.unwrap() > steps {
                         self.set(*neighbour, Tile::Floor(Some(steps + 1)));
-                        queue.push((steps + 1, *neighbour), Reverse(steps + 1));
+                        queue.push(*neighbour, Reverse(steps + 1));
                     }
                 }
             })
@@ -116,5 +116,4 @@ fn main() {
             break;
         };
     }
-
 }
