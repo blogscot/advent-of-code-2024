@@ -1,15 +1,15 @@
-fn eat(fabric: &str, pattern: &str) -> Option<String> {
-    fabric
+fn eat(design: &str, pattern: &str) -> Option<String> {
+    design
         .strip_prefix(pattern)
         .map(|stripped| stripped.to_string())
 }
 
-fn check(fabric: &str, patterns: &[&str]) -> bool {
-    if fabric.is_empty() {
+fn check(design: &str, patterns: &[&str]) -> bool {
+    if design.is_empty() {
         return true;
     }
     for pattern in patterns {
-        if let Some(fabric) = eat(fabric, pattern) {
+        if let Some(fabric) = eat(design, pattern) {
             if check(&fabric, patterns) {
                 return true;
             }
@@ -25,7 +25,7 @@ fn main() {
 
     let result: usize = designs
         .into_iter()
-        .filter(|pattern| check(pattern, &patterns))
+        .filter(|design| check(design, &patterns))
         .count();
 
     println!("Part 1: {:?}", result);
